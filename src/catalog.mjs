@@ -90,6 +90,6 @@ export function searchIcons(query, limit = 20) {
   const q = slug(query);
   const exact = resolveIcon(query);
   const res = c.icons.filter(e => e.id.includes(q) || e.aliases.some(a => a.includes(q)) || slug(e.name).includes(q));
-  if (exact && !res.includes(exact)) res.unshift(exact);
+  if (exact) { const i = res.indexOf(exact); if (i >= 0) res.splice(i, 1); res.unshift(exact); }
   return res.slice(0, limit);
 }

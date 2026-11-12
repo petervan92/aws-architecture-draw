@@ -87,10 +87,36 @@ export function layoutAws(spec) {
       minW = up(Math.max(insetL + lw + cidrW + 16, 160));
       it.insetL = insetL; it.top = top;
     }
-    // columns
-    const kids = it.children;
-    let cols;
+    // lanes: children with `row: N` are split into lanes stacked across the flow;
+    // each lane is laid out in columns along the flow
     const mode = g?.layout || 'flow';
+    const laneOf = k => k.ref?.row ?? 0;
+    const laneKeys = [...new Set(it.children.map(laneOf))].sort((a, b) => a - b);
+    const main = k => (horiz ? k.w : k.h), cross = k => (horiz ? k.h : k.w);
+    it.lanes = laneKeys.map(lk => {
+      const cols = columnsFor(it.children.filter(k => laneOf(k) === lk), mode).map(col => ({
+        items: col,
+        main: Math.max(...col.map(main)),
+        cross: col.reduce((s, k) => s + cross(k), 0) + GAP_CROSS * (col.length - 1),
+      }));
+      return {
+        cols,
+        main: cols.reduce((s, c) => s + c.main, 0) + GAP_MAIN * Math.max(0, cols.length - 1),
+        cross: Math.max(0, ...cols.map(c => c.cross)),
+      };
+    });
+    const innerMain = Math.max(0, ...it.lanes.map(l => l.main));
+    const innerCross = it.lanes.reduce((s, l) => s + l.cross, 0) + GAP_MAIN * Math.max(0, it.lanes.length - 1);
+    const pad = g ? PAD : 0;
+    const innerW = horiz ? innerMain : innerCross, innerH = horiz ? innerCross : innerMain;
+    it.w = up(Math.max(innerW + 2 * pad, minW));
+    it.h = up(innerH + (g ? top + PAD : 0));
+    if (g && !it.children.length) it.h = up(top + 40);
+    it.innerW = innerW; it.innerH = innerH;
+  }
+
+  function columnsFor(kids, mode) {
+    let cols;
     if (mode === 'row' || mode === 'column') {
       const alongMain = (mode === 'row') === horiz;
       cols = alongMain ? kids.map(k => [k]) : [kids];
@@ -126,20 +152,7 @@ export function layoutAws(spec) {
         for (const k of par) horiz ? (k.w = m) : (k.h = m);
       }
     }
-    const main = k => (horiz ? k.w : k.h), cross = k => (horiz ? k.h : k.w);
-    it.cols = cols.map(col => ({
-      items: col,
-      main: Math.max(...col.map(main)),
-      cross: col.reduce((s, k) => s + cross(k), 0) + GAP_CROSS * (col.length - 1),
-    }));
-    const innerMain = it.cols.reduce((s, c) => s + c.main, 0) + GAP_MAIN * Math.max(0, it.cols.length - 1);
-    const innerCross = Math.max(0, ...it.cols.map(c => c.cross));
-    const pad = g ? PAD : 0;
-    const innerW = horiz ? innerMain : innerCross, innerH = horiz ? innerCross : innerMain;
-    it.w = up(Math.max(innerW + 2 * pad, minW));
-    it.h = up(innerH + (g ? top + PAD : 0));
-    if (g && !kids.length) it.h = up(top + 40);
-    it.innerW = innerW; it.innerH = innerH;
+    return cols;
   }
   measure(root);
 
@@ -163,9 +176,20 @@ export function layoutAws(spec) {
     // center the content block
     let cx = x + pad + up((availW - it.innerW) / 2, 8);
     let cy = y + top + up((availH - it.innerH) / 2, 8);
-    for (const col of it.cols) {
-      // center each column across the flow
-      const innerCross = horiz ? it.innerH : it.innerW;
+    const multiLane = it.lanes.length > 1;
+    const x0 = cx, y0 = cy;
+    for (const lane of it.lanes) {
+      // single lane: centered; several lanes: aligned at the start so their columns line up
+      if (horiz) cx = multiLane ? x0 : x0 + up((it.innerW - lane.main) / 2, 8);
+      else cy = multiLane ? y0 : y0 + up((it.innerH - lane.main) / 2, 8);
+      placeLane(lane, depth);
+      if (horiz) cy += lane.cross + GAP_MAIN; else cx += lane.cross + GAP_MAIN;
+    }
+    function placeLane(lane, depth) {
+    const laneX = cx, laneY = cy;
+    for (const col of lane.cols) {
+      // center each column across the lane
+      const innerCross = lane.cross;
       let off = up((innerCross - col.cross) / 2, 8);
       // a lone icon is aligned on the icon centre line, so straight arrows stay straight
       if (col.items.length === 1 && col.items[0].kind === 'node') {
@@ -175,18 +199,31 @@ export function layoutAws(spec) {
       }
       for (const k of col.items) {
         const along = up((col.main - (horiz ? k.w : k.h)) / 2, 8);
-        if (horiz) place(k, cx + along, cy + off, depth + 1);
-        else place(k, cx + off, cy + along, depth + 1);
+        if (horiz) place(k, cx + along, laneY + off, depth + 1);
+        else place(k, laneX + off, cy + along, depth + 1);
         off += (horiz ? k.h : k.w) + GAP_CROSS;
       }
       if (horiz) cx += col.main + GAP_MAIN; else cy += col.main + GAP_MAIN;
     }
+    if (horiz) cy = laneY; else cx = laneX;
+    }
   }
   place(root, MARGIN, MARGIN, -1);
   let W = root.w + 2 * MARGIN, H = root.h + 2 * MARGIN;
+  // a top-level icon (e.g. users) lines up with the icon it talks to, if that keeps it clear of others
+  for (const n of out.nodes.filter(n => !n.parent)) {
+    const e = spec.edges.find(e => e.from === n.id || e.to === n.id);
+    const other = e && out.nodes.find(m => m.id === (e.from === n.id ? e.to : e.from));
+    if (!other) continue;
+    const ny = horiz ? other.y : n.y, nx = horiz ? n.x : other.x;
+    const clash = out.nodes.some(m => m !== n && !m.parent && Math.abs(m.x - nx) < n.cell.w && Math.abs(m.y - ny) < n.cell.h);
+    if (!clash && ny >= MARGIN && nx >= MARGIN) { n.x = nx; n.y = ny; }
+  }
 
   // ---------- route arrows
-  const router = makeRouter(W, H);
+  const router0 = makeRouter(W, H);
+  const rects = [];
+  const router = { ...router0, block: (x, y, w, h) => { rects.push({ x, y, w, h }); router0.block(x, y, w, h); } };
   for (const n of out.nodes) {
     router.block(n.x - 8, n.y - 8, n.w + 16, n.h + 16);
     if (n.lines.length) {
@@ -224,13 +261,9 @@ export function layoutAws(spec) {
     let labelBox = null;
     if (e.label) {
       const w = wrapLabel(e.label, { fontPx, maxWidth: 160, maxLines: 2 });
-      const s = longestSegment(pts);
-      const bw = w.width + 8, bh = w.lines.length * lineH + 2;
-      const vertical = s.a.x === s.b.x;
-      const mx = (s.a.x + s.b.x) / 2, my = (s.a.y + s.b.y) / 2;
-      // beside a vertical segment, above a horizontal one
-      labelBox = vertical ? { x: mx + 6, y: my - bh / 2, w: bw, h: bh, lines: w.lines } : { x: mx - bw / 2, y: my - bh - 3, w: bw, h: bh, lines: w.lines };
-      if (!vertical) labelBox.x = Math.max(labelBox.x, Math.min(s.a.x, s.b.x) + 4);
+      labelBox = placeEdgeLabel(pts, w.width + 8, w.lines.length * lineH + 2, rects);
+      labelBox.lines = w.lines;
+      rects.push(labelBox);
     }
     out.edges.push({ ...e, points: pts, labelBox });
   }
@@ -328,8 +361,13 @@ function makeRouter(W, H) {
   }
   function border(x, y, w, h) {
     const c0 = cell(x), c1 = cell(x + w), r0 = cell(y), r1 = cell(y + h);
-    for (let c = c0; c <= c1; c++) { borderCost[idx(c, r0)] = 1; borderCost[idx(c, r1)] = 1; }
-    for (let r = r0; r <= r1; r++) { borderCost[idx(c0, r)] = 1; borderCost[idx(c1, r)] = 1; }
+    const set = (c, r, v) => { if (c >= 0 && r >= 0 && c < cols && r < rows && borderCost[idx(c, r)] !== 1) borderCost[idx(c, r)] = v; };
+    for (let c = c0; c <= c1; c++) { set(c, r0, 1); set(c, r1, 1); }
+    for (let r = r0; r <= r1; r++) { set(c0, r, 1); set(c1, r, 1); }
+    for (const dd of [-1, 1]) {
+      for (let c = c0; c <= c1; c++) { set(c, r0 + dd, 2); set(c, r1 + dd, 2); }
+      for (let r = r0; r <= r1; r++) { set(c0 + dd, r, 2); set(c1 + dd, r, 2); }
+    }
   }
 
   // ports: [x, y, dirIndex outward]
@@ -345,7 +383,7 @@ function makeRouter(W, H) {
 
   function route(src, dst, horizFlow = true) {
     const sidePenalty = d => ((d % 2 === 0) === horizFlow ? 0 : 10);
-    const BEND = 6, OVERLAP = 12, CROSS = 2, BORDER = 3, STUB = 2;
+    const BEND = 6, OVERLAP = 12, CROSS = 2, BORDER = 10, NEAR = 2, STUB = 2;
     const N = cols * rows;
     const g = new Float64Array(N * 4).fill(Infinity);
     const prev = new Int32Array(N * 4).fill(-1);
@@ -389,7 +427,7 @@ function makeRouter(W, H) {
         let cost = 1 + (nd !== d ? BEND : 0);
         cost += (horiz ? usedH[ni] : usedV[ni]) ? OVERLAP : 0;
         cost += (horiz ? usedV[ni] : usedH[ni]) ? CROSS : 0;
-        cost += borderCost[ni] ? BORDER : 0;
+        cost += borderCost[ni] === 1 ? BORDER : borderCost[ni] === 2 ? NEAR : 0;
         const ns = ni * 4 + nd;
         const ng = g[s] + cost;
         if (ng < g[ns]) {
@@ -478,4 +516,29 @@ class MinHeap {
     }
     return top;
   }
+}
+
+// first spot along the path (longest segments first) that overlaps no icon, label or group title
+function placeEdgeLabel(pts, bw, bh, rects) {
+  const segs = [];
+  for (let i = 1; i < pts.length; i++) segs.push({ a: pts[i - 1], b: pts[i], L: Math.abs(pts[i].x - pts[i - 1].x) + Math.abs(pts[i].y - pts[i - 1].y) });
+  segs.sort((x, y) => y.L - x.L);
+  const hit = r => rects.some(o => r.x < o.x + o.w && r.x + r.w > o.x && r.y < o.y + o.h && r.y + r.h > o.y);
+  let first = null;
+  for (const s of segs) {
+    if (s.L < 24) continue;
+    const vertical = s.a.x === s.b.x;
+    for (const t of [0.5, 0.3, 0.7, 0.15, 0.85]) {
+      const mx = s.a.x + (s.b.x - s.a.x) * t, my = s.a.y + (s.b.y - s.a.y) * t;
+      const cands = vertical
+        ? [{ x: mx + 6, y: my - bh / 2 }, { x: mx - bw - 6, y: my - bh / 2 }]
+        : [{ x: mx - bw / 2, y: my - bh - 3 }, { x: mx - bw / 2, y: my + 3 }];
+      for (const c of cands) {
+        const r = { ...c, w: bw, h: bh };
+        first ||= r;
+        if (!hit(r)) return r;
+      }
+    }
+  }
+  return first || { x: pts[0].x, y: pts[0].y - bh, w: bw, h: bh };
 }

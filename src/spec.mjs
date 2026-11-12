@@ -65,7 +65,7 @@ export function validate(input) {
     if (!claim(g?.id, where)) return;
     const preset = G.groups[g.type];
     if (!preset) { err(where, `unknown group type "${g.type}". Allowed: ${Object.keys(G.groups).join(', ')}`); return; }
-    const out = { id: g.id, type: g.type, parent: g.parent || null, label: g.label ?? preset.label, cidr: g.cidr || null, layout: g.layout || null, preset };
+    const out = { id: g.id, type: g.type, parent: g.parent || null, label: g.label ?? preset.label, cidr: g.cidr || null, layout: g.layout || null, row: g.row ?? null, preset };
     if (g.layout && !['row', 'column', 'flow'].includes(g.layout)) err(where, `layout must be row|column|flow`);
     if (g.type === 'custom') {
       const svc = g.service && resolveIcon(g.service);
@@ -98,7 +98,7 @@ export function validate(input) {
       else warn(where, `label "${label}" does not fit ${lim}; consider the short form (e.g. "Amazon S3"), and mention the full name once in the document`);
     }
     if (/\b(\w+)-\s/.test(label)) err(where, `label "${label}" breaks a word with a hyphen - never break mid-word (slide 17)`);
-    const out = { id: n.id, entry, label, lines: wrapped.lines, labelWidth: wrapped.width, parent: n.parent || null, step: n.step ?? null };
+    const out = { id: n.id, entry, label, lines: wrapped.lines, labelWidth: wrapped.width, parent: n.parent || null, step: n.step ?? null, row: n.row ?? null };
     nodeById.set(n.id, out);
     spec.nodes.push(out);
   });

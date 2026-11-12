@@ -18,7 +18,7 @@
     "fontSizePx": 16,
     "lineHeightPx": 19,
     "maxLines": 2,
-    "maxWidthPx": 140,
+    "maxWidthPx": 150,
     "gapBelowIconPx": 4,
     "neverBreakMidWord": true,
     "vendorPrefixesKeepWithNextWord": ["AWS", "Amazon"]

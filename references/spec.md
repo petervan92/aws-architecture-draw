@@ -17,6 +17,7 @@ groups:                         # structure first
     label: Virtual private cloud (VPC)   # optional, defaults to the preset label
     cidr: 10.0.0.0/16           # optional, printed at the right of the group header
     layout: flow                # optional: flow (default) | row | column
+    row: 0                      # optional lane inside the parent (0 = first). Lanes stack across the flow
   - id: orders
     type: custom                # custom group for a service: category color + its 32px icon
     service: step-functions
@@ -28,6 +29,7 @@ nodes:
     label: Application Load Balancer   # optional, defaults to the official name. "\n" forces a break
     parent: pub1
     step: 3                     # optional numbered callout next to the icon
+    row: 1                      # optional lane inside the parent group (see Layout below)
 
 edges:
   - from: users                 # node or group id
@@ -68,3 +70,13 @@ steps:                          # optional numbered legend under the diagram
   callout numbering gaps or duplicates, many large callouts, labels wider than 2 × 140 px.
 
 Run `node scripts/validate.mjs spec.yaml --strict` to treat warnings as errors.
+
+## Layout
+
+- Children of a group are placed in **columns along the flow**, ordered by the arrows. Parallel groups (AZs, Regions, accounts) share one column.
+- `row: N` on groups or nodes splits a parent into **lanes** that are stacked across the flow (below each other when `direction: right`).
+  Every lane is laid out on its own. Use lanes to mirror a two-tier picture, e.g. *primary site + monitoring* on lane 0 and *DR Region* on lane 1,
+  or a main chain in lane 0 with its consumers in lane 1.
+- `layout: row|column` places children in spec order without ranking.
+- A top-level icon (e.g. users) is aligned with the icon it connects to.
+- Edge labels are placed at the first free spot along the arrow, avoiding icons, labels and group titles.

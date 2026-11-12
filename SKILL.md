@@ -40,7 +40,8 @@ Everything lives in this skill's folder (`<skill>` below). Run `npm install` the
   - Never invent group icons.
 - **Icons** are always 48 px. Do not resize, crop, rotate, flip or recolor them. Always use SVG, never PNG.
 - **Arrows**: 1.25 pt with an "Open Arrow" head, straight lines and right angles only. Only the presets are allowed:
-  `arrow: end | both | none`.
+  `arrow: end | both | none`. There are **no dashed arrows** in the presets, so express secondary flows (monitoring, backup, failover)
+  with an edge `label:` instead of a line style.
 - **Labels**: 12 pt Arial, at most **2 lines**, never broken mid-word. "AWS"/"Amazon" stays with the service name.
   Short forms such as "Amazon EC2" are allowed only if the full name appears elsewhere in the document,
   and two services must never share a short form.
@@ -65,6 +66,8 @@ Everything lives in this skill's folder (`<skill>` below). Run `npm install` the
 - Children of a group are placed in **columns along the flow** (`direction: right` → left-to-right), ordered by the arrows.
   Parallel groups (AZs, Regions, accounts) share a column, so AZ 1 and AZ 2 sit side by side with matching subnets.
 - Within a column, the order in the spec decides the order on the page. List AZ 1 before AZ 2, and public before private.
+- Use `row: N` on children to split a group into lanes stacked across the flow (e.g. primary site on lane 0, DR Region on lane 1).
+  This is the main tool for keeping wide diagrams compact.
 - Use `layout: row` or `layout: column` on a group to force a simple sequence in spec order.
 - Unconnected icons (e.g. a NAT gateway) are placed next to their neighbors in spec order.
 - `engine: elk` switches to the ELK layered engine, which can be better for large flow-heavy diagrams with few groups.
