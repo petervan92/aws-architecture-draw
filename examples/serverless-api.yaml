@@ -1,0 +1,32 @@
+title: Serverless REST API
+theme: dark
+direction: right
+callouts: small
+
+groups:
+  - { id: cloud, type: aws-cloud }
+  - { id: region, type: region, label: Region, parent: cloud }
+  - { id: wf, type: step-functions-workflow, label: Order workflow, parent: region }
+  - { id: obs, type: custom, service: cloudwatch, label: Observability, parent: region }
+
+nodes:
+  - { id: client, icon: mobile-client, label: Mobile app }
+  - { id: cognito, icon: cognito, label: Amazon Cognito, parent: region }
+  - { id: api, icon: api-gateway, label: Amazon API Gateway, parent: region }
+  - { id: fn, icon: lambda-function, label: Orders function, parent: region }
+  - { id: ddb, icon: dynamodb-table, label: Orders table, parent: region }
+  - { id: q, icon: sqs-queue, label: Order queue, parent: region }
+  - { id: pay, icon: lambda-function, label: Payment, parent: wf }
+  - { id: ship, icon: lambda-function, label: Shipping, parent: wf }
+  - { id: logs, icon: cloudwatch-logs, label: Logs, parent: obs }
+  - { id: alarm, icon: cloudwatch-alarm, label: Alarms, parent: obs }
+
+edges:
+  - { from: client, to: cognito, label: sign in, step: 1 }
+  - { from: client, to: api, label: HTTPS + JWT, step: 2 }
+  - { from: api, to: fn, step: 3 }
+  - { from: fn, to: ddb }
+  - { from: fn, to: q, step: 4 }
+  - { from: q, to: pay, step: 5 }
+  - { from: pay, to: ship }
+  - { from: fn, to: logs, arrow: none }

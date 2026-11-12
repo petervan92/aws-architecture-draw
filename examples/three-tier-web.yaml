@@ -1,0 +1,47 @@
+title: Highly available 3-tier web application
+theme: light
+direction: right
+callouts: large
+
+groups:
+  - { id: cloud,  type: aws-cloud }
+  - { id: region, type: region, label: "Region (ap-southeast-1)", parent: cloud }
+  - { id: vpc,    type: vpc, parent: region, cidr: 10.0.0.0/16 }
+  - { id: az1,    type: availability-zone, label: Availability Zone 1, parent: vpc }
+  - { id: az2,    type: availability-zone, label: Availability Zone 2, parent: vpc }
+  - { id: pub1,   type: public-subnet,  parent: az1 }
+  - { id: app1,   type: private-subnet, parent: az1 }
+  - { id: db1,    type: private-subnet, parent: az1 }
+  - { id: pub2,   type: public-subnet,  parent: az2 }
+  - { id: app2,   type: private-subnet, parent: az2 }
+  - { id: db2,    type: private-subnet, parent: az2 }
+
+nodes:
+  - { id: users, icon: users, label: Users }
+  - { id: r53,   icon: route53, label: Amazon Route 53, parent: cloud }
+  - { id: cf,    icon: cloudfront, parent: cloud }
+  - { id: s3,    icon: s3, label: Amazon S3 (static assets), parent: region }
+  - { id: alb,   icon: alb, label: Application Load Balancer, parent: vpc }
+  - { id: ec2a,  icon: ec2-instance, label: Web/App server, parent: app1 }
+  - { id: ec2b,  icon: ec2-instance, label: Web/App server, parent: app2 }
+  - { id: nat1,  icon: nat-gateway, label: NAT gateway, parent: pub1 }
+  - { id: nat2,  icon: nat-gateway, label: NAT gateway, parent: pub2 }
+  - { id: rdsp,  icon: amazon-aurora-instance, label: Aurora primary, parent: db1 }
+  - { id: rdsr,  icon: amazon-aurora-instance, label: Aurora replica, parent: db2 }
+
+edges:
+  - { from: users, to: r53, label: DNS, step: 1 }
+  - { from: users, to: cf, step: 2 }
+  - { from: cf, to: s3 }
+  - { from: cf, to: alb, step: 3 }
+  - { from: alb, to: ec2a }
+  - { from: alb, to: ec2b }
+  - { from: ec2a, to: rdsp, step: 4 }
+  - { from: ec2b, to: rdsp }
+  - { from: rdsp, to: rdsr, label: replication }
+
+steps:
+  1: Users resolve the domain with Amazon Route 53.
+  2: Requests go to Amazon CloudFront; static content is served from Amazon S3.
+  3: Dynamic requests are forwarded to the Application Load Balancer.
+  4: Application servers read and write to the Amazon Aurora primary.

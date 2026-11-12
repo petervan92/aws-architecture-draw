@@ -1,0 +1,98 @@
+{
+  "_source": "AWS-Architecture-Icons-Deck_For-Light-BG_07312026.pptx / _For-Dark-BG_07312026.pptx (release 24-2026.07.31). All sizes converted from EMU at 96 DPI (9525 EMU = 1 px). See references/guidelines.md for slide-by-slide notes.",
+  "release": "07312026",
+
+  "units": { "pxPerPt": 1.3333, "pxPerInch": 96 },
+
+  "themes": {
+    "light": { "background": "#FFFFFF", "text": "#000000", "line": "#000000", "awsCloudStroke": "#000000", "calloutFill": "#000000", "calloutText": "#FFFFFF", "iconVariant": "light", "awsCloudIcon": "AWS-Cloud-logo_32.svg", "awsCloudAltIcon": "AWS-Cloud_32.svg" },
+    "dark":  { "background": "#000000", "text": "#FFFFFF", "line": "#9BA7B6", "awsCloudStroke": "#FFFFFF", "calloutFill": "#FFFFFF", "calloutText": "#000000", "iconVariant": "dark", "awsCloudIcon": "AWS-Cloud-logo_32_Dark.svg", "awsCloudAltIcon": "AWS-Cloud_32_Dark.svg" }
+  },
+
+  "icon": { "size": 48, "resizeAllowed": false },
+  "groupIcon": { "size": 40, "resizeAllowed": false },
+
+  "label": {
+    "fontFamily": "Arial",
+    "fontSizePt": 12,
+    "fontSizePx": 16,
+    "lineHeightPx": 19,
+    "maxLines": 2,
+    "maxWidthPx": 140,
+    "gapBelowIconPx": 4,
+    "neverBreakMidWord": true,
+    "vendorPrefixesKeepWithNextWord": ["AWS", "Amazon"]
+  },
+
+  "arrow": {
+    "strokeWidthPt": 1.25,
+    "strokeWidthPx": 1.67,
+    "head": "open",
+    "headWidth": "med",
+    "headLength": "sm",
+    "routing": "orthogonal",
+    "diagonalOnlyWhenRightAnglesImpossible": true
+  },
+
+  "callout": {
+    "large": { "diameterPx": 35, "fontSizePt": 14, "fontSizePx": 18.67 },
+    "small": { "diameterPx": 29, "fontSizePt": 11, "fontSizePx": 14.67 },
+    "fontWeight": "bold",
+    "fontFamily": "Arial",
+    "mixSizesAllowed": false,
+    "allowedSymbols": "digits only"
+  },
+
+  "group": {
+    "strokeWidthPt": 1.25,
+    "strokeWidthPx": 1.67,
+    "fill": "none",
+    "labelInsetLeftWithIconPx": 53,
+    "labelInsetLeftNoIconPx": 10,
+    "labelInsetTopPx": 10,
+    "nestedBufferMinPx": 5,
+    "dash": { "dash": [6.67, 5], "sysDash": [5, 1.67] }
+  },
+
+  "groups": {
+    "aws-cloud":                  { "label": "AWS Cloud", "stroke": "theme:awsCloudStroke", "dash": null, "icon": "theme:awsCloudIcon", "iconPos": "top-left" },
+    "aws-cloud-alt":              { "label": "AWS Cloud", "stroke": "theme:awsCloudStroke", "dash": null, "icon": "theme:awsCloudAltIcon", "iconPos": "top-left", "note": "Use where the AWS logo must not appear, e.g. China Regions (deck slide 25)." },
+    "region":                     { "label": "Region", "stroke": "#00A4A6", "dash": "sysDash", "icon": "Region_32.svg", "iconPos": "top-left" },
+    "availability-zone":          { "label": "Availability Zone", "stroke": "#00A4A6", "dash": "dash", "icon": null, "labelAlign": "center" },
+    "security-group":             { "label": "Security group", "stroke": "#DD344C", "dash": null, "icon": null, "labelAlign": "left" },
+    "auto-scaling-group":         { "label": "Auto Scaling group", "stroke": "#ED7100", "dash": "dash", "icon": "Auto-Scaling-group_32.svg", "iconPos": "top-center", "labelAlign": "center" },
+    "vpc":                        { "label": "Virtual private cloud (VPC)", "stroke": "#8C4FFF", "dash": null, "icon": "Virtual-private-cloud-VPC_32.svg", "iconPos": "top-left" },
+    "private-subnet":             { "label": "Private subnet", "stroke": "#00A4A6", "dash": null, "icon": "Private-subnet_32.svg", "iconPos": "top-left" },
+    "public-subnet":              { "label": "Public subnet", "stroke": "#7AA116", "dash": null, "icon": "Public-subnet_32.svg", "iconPos": "top-left" },
+    "server-contents":            { "label": "Server contents", "stroke": "#7D8998", "dash": null, "icon": "Server-contents_32.svg", "iconPos": "top-left" },
+    "corporate-data-center":      { "label": "Corporate data center", "stroke": "#7D8998", "dash": null, "icon": "Corporate-data-center_32.svg", "iconPos": "top-left" },
+    "ec2-instance-contents":      { "label": "EC2 instance contents", "stroke": "#ED7100", "dash": null, "icon": "EC2-instance-contents_32.svg", "iconPos": "top-left" },
+    "spot-fleet":                 { "label": "Spot Fleet", "stroke": "#ED7100", "dash": null, "icon": "Spot-Fleet_32.svg", "iconPos": "top-left" },
+    "aws-account":                { "label": "AWS account", "stroke": "#E7157B", "dash": null, "icon": "AWS-Account_32.svg", "iconPos": "top-left" },
+    "iot-greengrass-deployment":  { "label": "AWS IoT Greengrass Deployment", "stroke": "#7AA116", "dash": null, "icon": "AWS-IoT-Greengrass-Deployment_32.svg", "iconPos": "top-left" },
+    "iot-greengrass":             { "label": "AWS IoT Greengrass", "stroke": "#7AA116", "dash": null, "icon": "service32:aws-iot-greengrass", "iconPos": "top-left" },
+    "elastic-beanstalk-container":{ "label": "Elastic Beanstalk container", "stroke": "#ED7100", "dash": null, "icon": "service32:aws-elastic-beanstalk", "iconPos": "top-left" },
+    "step-functions-workflow":    { "label": "AWS Step Functions workflow", "stroke": "#E7157B", "dash": null, "icon": "service32:aws-step-functions", "iconPos": "top-left" },
+    "generic":                    { "label": "", "stroke": "#7D8998", "dash": null, "icon": null, "labelAlign": "center" },
+    "generic-dashed":             { "label": "", "stroke": "#7D8998", "dash": "dash", "icon": null, "labelAlign": "center" },
+    "custom":                     { "label": "", "stroke": "category:service", "dash": null, "icon": "service32:service", "iconPos": "top-left", "note": "Custom group for a service (deck slide 26): category color + the service's 32px Architecture icon (SVG, never PNG)." }
+  },
+
+  "nesting": {
+    "_comment": "allowed parent group types for each group type. 'root' = top level. Violations of 'strict' are errors, others are warnings.",
+    "aws-cloud":                 { "parents": ["root", "aws-account", "generic", "generic-dashed"] },
+    "aws-cloud-alt":             { "parents": ["root", "aws-account", "generic", "generic-dashed"] },
+    "aws-account":               { "parents": ["root", "aws-cloud", "aws-cloud-alt", "generic", "generic-dashed"] },
+    "region":                    { "parents": ["root", "aws-cloud", "aws-cloud-alt", "aws-account"] },
+    "vpc":                       { "parents": ["region", "aws-cloud", "aws-cloud-alt", "aws-account", "availability-zone"] },
+    "availability-zone":         { "parents": ["vpc", "region", "aws-cloud", "aws-cloud-alt"] },
+    "public-subnet":             { "parents": ["vpc", "availability-zone"], "strict": true },
+    "private-subnet":            { "parents": ["vpc", "availability-zone"], "strict": true },
+    "security-group":            { "parents": ["public-subnet", "private-subnet", "vpc", "availability-zone", "auto-scaling-group"] },
+    "auto-scaling-group":        { "parents": ["public-subnet", "private-subnet", "vpc", "availability-zone", "security-group", "region", "aws-cloud", "aws-cloud-alt"] },
+    "ec2-instance-contents":     { "parents": ["public-subnet", "private-subnet", "security-group", "auto-scaling-group", "availability-zone", "vpc", "spot-fleet"] },
+    "spot-fleet":                { "parents": ["public-subnet", "private-subnet", "security-group", "availability-zone", "vpc", "region", "aws-cloud"] },
+    "corporate-data-center":     { "parents": ["root", "generic", "generic-dashed"] },
+    "server-contents":           { "parents": ["root", "corporate-data-center", "generic", "generic-dashed"] }
+  }
+}

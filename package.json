@@ -1,0 +1,27 @@
+{
+  "name": "aws-architecture-draw",
+  "version": "0.1.0",
+  "description": "Claude skill: draw AWS architecture diagrams (draw.io + SVG/PNG) following the official AWS Architecture Icons guidelines.",
+  "type": "module",
+  "private": true,
+  "bin": {
+    "aws-draw": "scripts/render.mjs"
+  },
+  "scripts": {
+    "import-icons": "node scripts/import-icons.mjs",
+    "catalog": "node scripts/build-catalog.mjs",
+    "validate": "node scripts/validate.mjs",
+    "render": "node scripts/render.mjs",
+    "find": "node scripts/find-icon.mjs",
+    "examples": "node scripts/render.mjs examples/*.yaml --out examples/out"
+  },
+  "dependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "elkjs": "^0.9.3",
+    "js-yaml": "^4.1.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}

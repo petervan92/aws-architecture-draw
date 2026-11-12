@@ -1,0 +1,27 @@
+# Re-creation of the deck's example "Chef Automate Architecture on AWS" (light deck, slide 21)
+title: Chef Automate Architecture on AWS
+theme: light
+direction: right
+callouts: large
+
+groups:
+  - { id: cloud, type: aws-cloud }
+  - { id: az, type: availability-zone, parent: cloud }
+  - { id: vpc, type: vpc, parent: az, cidr: 10.0.0.0/16 }
+  - { id: pub, type: public-subnet, parent: vpc, cidr: 10.0.0.0/19 }
+  - { id: asg, type: auto-scaling-group, parent: pub }
+
+nodes:
+  - { id: ws, icon: client, label: "Chef workstation\n(local Chef repo)" }
+  - { id: igw, icon: internet-gateway, label: Internet gateway, parent: vpc }
+  - { id: chef, icon: ec2-instance, label: Chef Automate, parent: pub }
+  - { id: node, icon: ec2-instance, label: Chef node, parent: asg }
+
+edges:
+  - { from: ws, to: igw, step: 1 }
+  - { from: igw, to: chef }
+  - { from: chef, to: node, step: 2, arrow: both }
+
+steps:
+  1: Chef Knife uploads cookbooks.
+  2: Knife bootstraps and communicates with nodes. The Chef client processes the run list.
